@@ -11,7 +11,7 @@ set -e
 } > /dev/null
 (
 	cd k8s-nfs-ansible
-	sudo -u datahub -H ansible-playbook -i hosts playbook.yml
+	sudo -u sbdhhub -H ansible-playbook -i hosts playbook.yml
 )
 
 # install helm and jupyterhub

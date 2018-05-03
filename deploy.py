@@ -72,7 +72,7 @@ cmd = ['acs-engine', 'generate', os.path.join(args.name, 'cluster.json')]
 r = sp.check_output(cmd)
 
 # create resource group
-cmd = ['az', 'group', 'create', '--name', args.name, '--location', 'westus2']
+cmd = ['az', 'group', 'create', '--name', args.name, '--location', 'eastus2']
 r = sp.check_output(cmd, universal_newlines=True)
 
 # create the agents
@@ -95,13 +95,13 @@ agent_pool_subnet_address_prefix = vnet[0]['subnets'][0]['addressPrefix']
 # create nfs server
 vm_name = 'nfsserver'
 cmd = ['az', 'vm', 'create', '-n', vm_name,
-	'--admin-username', 'datahub',
+	'--admin-username', 'sbdhhub',
 	'--resource-group', args.name,
 	'--ssh-key-value', ssh_key_pub,
 	'--size', 'Standard_E2s_v3', '--storage-sku', 'Premium_LRS',
 	'--vnet-name', agent_pool_vnet_name,
 	'--subnet', agent_pool_subnet_name,
-	'--location', 'West US 2',
+	'--location', 'East US 2',
 	'--image', 'canonical:ubuntuserver:17.10:latest']
 vm_create = sp.check_output(cmd, universal_newlines=True)
 write_json(os.path.join(args.name, vm_name + '.json'), vm_create)
@@ -128,8 +128,8 @@ r = sp.check_output(cmd, universal_newlines=True)
 nfs_host_ip = json.loads(vm_create)['privateIpAddress']
 
 # prepare to connect to master
-ssh_opts = ['-i', ssh_key, '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no', '-o', 'User=datahub']
-ssh_host = args.name + '.westus2.cloudapp.azure.com'
+ssh_opts = ['-i', ssh_key, '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no', '-o', 'User=sbdhhub']
+ssh_host = args.name + '.eastus2.cloudapp.azure.com'
 os.environ['SSH_AUTH_SOCK'] = ''
 
 # verify ssh works
@@ -141,7 +141,7 @@ cmd = ['scp'] + ssh_opts + ['-r', 'bootstrap', ssh_host + ':']
 sp.check_call(cmd)
 
 # copy ansible playbook
-cmd = ['ssh'] + ssh_opts + [ssh_host, "git clone https://github.com/berkeley-dsep-infra/k8s-nfs-ansible.git"]
+cmd = ['ssh'] + ssh_opts + [ssh_host, "git clone https://github.com/sbdh-dataup/k8s-nfs-ansible.git"]
 sp.check_call(cmd)
 
 # move .ansible.cfg into place
